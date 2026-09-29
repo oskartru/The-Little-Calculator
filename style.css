@@ -1,0 +1,357 @@
+/* Stylesheet for the Web Calculator (calculator.html) */
+
+/* =========================================================
+   DESIGN TOKENS (colors, sizes) – changed in one place only
+   ========================================================= */
+:root {
+  --page: #D9E0E4;        /* page background */
+  --body: #2E3B47;        /* calculator body (slate) */
+  --body-edge: #24303A;
+  --lcd: #C6D4B4;         /* LCD-style display */
+  --lcd-ink: #1D2A1C;
+  --key: #EEF2F4;         /* unary keys */
+  --key-ink: #1B252E;
+  --key-shadow: #B9C3CA;
+  --amber: #E8A33A;       /* binary keys */
+  --amber-dark: #B97B1C;
+  --csv: #A9CFDB;         /* CSV keys */
+  --csv-dark: #7FA9B6;
+  --tool: #D4DADF;        /* tool keys */
+  --paper: #F7F9FA;       /* info field */
+  --ink: #1B252E;
+  --muted: #5B6873;
+  --label: #D5DEE4;
+  --heading: #AEBBC6;
+  --error: #B3261E;
+  --active: #FFD166;      /* last pressed button */
+  --mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+}
+
+/* ---------- Calculator body ---------- */
+.calculator {
+  width: 100%;
+  max-width: 560px;
+  background: var(--body);
+  color: var(--label);
+  border-radius: 22px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 0 var(--body-edge), 0 18px 40px rgba(30, 40, 50, 0.25);
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--heading);
+}
+
+/* ---------- Display (LCD look) ---------- */
+.screen {
+  background: var(--lcd);
+  color: var(--lcd-ink);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.pending {
+  margin: 0;
+  min-height: 1.2em;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  text-align: right;
+  opacity: 0.75;
+}
+
+.screen-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #3E4E3D;
+}
+
+.display-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#display {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--lcd-ink);
+  font-family: var(--mono);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding: 0.25rem 0;
+}
+
+#display::placeholder { color: #6F8069; }
+
+#display:focus-visible {
+  outline: 2px dashed var(--lcd-ink);
+  outline-offset: 4px;
+}
+
+/* Loading spinner for CSV operations */
+.spinner {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid rgba(29, 42, 28, 0.25);
+  border-top-color: var(--lcd-ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner[hidden] { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Information field ---------- */
+#info {
+  margin: 1rem 0 0;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 10px;
+  border-left: 6px solid var(--amber);
+}
+
+.big {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Error messages are visually distinct (red) */
+#info.error {
+  color: var(--error);
+  background: #FDF1F0;
+  border-left-color: var(--error);
+}
+
+.info-detail {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* ---------- Button groups ---------- */
+.group { margin-top: 1.25rem; }
+
+.group h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.keys {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: 0.5rem;
+}
+
+button {
+  position: relative;
+  min-height: 3rem;
+  padding: 0.5rem;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--key-ink);
+  background: var(--key);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 3px 0 var(--key-shadow);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, background-color 0.15s;
+}
+
+button:hover { background: #FFFFFF; }
+
+button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--key-shadow);
+}
+
+/* Clearly visible keyboard focus */
+button:focus-visible {
+  outline: 3px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
+/* Small shortcut hint in the corner of each key */
+button[data-key]::after {
+  content: attr(data-key);
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.55;
+}
+
+.key-binary { background: var(--amber); box-shadow: 0 3px 0 var(--amber-dark); }
+.key-binary:hover { background: #F0B455; }
+
+.key-csv { background: var(--csv); box-shadow: 0 3px 0 var(--csv-dark); }
+.key-csv:hover { background: #BEDDE6; }
+
+.key-tool { background: var(--tool); }
+
+/* Most recently pressed button: stays highlighted until the next press */
+button.active {
+  box-shadow: inset 0 0 0 3px var(--active), 0 1px 0 var(--key-shadow);
+  transform: translateY(1px);
+}
+
+/* While a CSV operation is processing */
+.busy button { cursor: progress; opacity: 0.7; }
+
+/* ---------- Input fields ---------- */
+.field { margin-top: 0.75rem; }
+
+.field label,
+.remove-box > label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+}
+
+input[type="text"]:not(#display) {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+
+input[type="text"]:not(#display):focus-visible {
+  outline: 3px solid #FFFFFF;
+  outline-offset: 1px;
+}
+
+.remove-box {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem;
+  border: 1px solid #4A5966;
+  border-radius: 12px;
+}
+
+.remove-box legend {
+  padding: 0 0.4rem;
+  font-size: 0.85rem;
+}
+
+.radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.radios input { accent-color: var(--amber); }
+
+.radios input:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
+.inline {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inline input { flex: 1; min-width: 0; }
+
+/* ---------- Tools row ---------- */
+.tools-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.tools-row button { min-width: 5rem; }
+
+#errorCount {
+  font-size: 0.85rem;
+  color: var(--heading);
+}
+
+/* ---------- Shortcut legend ---------- */
+.shortcuts {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.shortcuts summary {
+  cursor: pointer;
+  color: var(--heading);
+}
+
+.shortcuts summary:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
+.shortcuts p { margin: 0.6rem 0; color: var(--heading); }
+
+.shortcuts dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+}
+
+.shortcuts dd { margin: 0; }
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.1rem 0.4rem;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: #FFFFFF;
+  background: #44525F;
+  border-radius: 5px;
+  box-shadow: 0 2px 0 #1F2A33;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 420px) {
+  body { padding: 1rem 0.5rem; }
+  .calculator { padding: 1rem; border-radius: 16px; }
+  .keys { grid-template-columns: repeat(auto-fill, minmax(4.2rem, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+  .spinner { animation-duration: 2s; }
+}

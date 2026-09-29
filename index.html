@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Calculator</title>
+
+  <!-- All styles are in the separate file style.css -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main class="calculator" id="calculator" aria-labelledby="calcTitle" aria-busy="false">
+    <h1 id="calcTitle">Web calculator</h1>
+
+    <!-- ===== Display ===== -->
+    <section class="screen" aria-label="Display">
+      <p id="pending" class="pending" aria-live="polite"></p>
+      <label for="display" class="screen-label">Number or comma-separated list</label>
+      <div class="display-row">
+        <input type="text" id="display" autocomplete="off" spellcheck="false"
+               placeholder="e.g. 12.5 or 5, 3, 10">
+        <span id="spinner" class="spinner" hidden aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- ===== Task 1: Information field ===== -->
+    <h2 id="info" class="big" title="Info about the number" aria-live="polite">Information about the number</h2>
+
+    <!-- ===== Task 2: Unary operations ===== -->
+    <section class="group" aria-labelledby="h-unary">
+      <h3 id="h-unary">Unary operations</h3>
+      <div class="keys">
+        <button type="button" id="square"    data-key="Q" aria-label="Square (x squared)">x²</button>
+        <button type="button" id="cube"      data-key="C" aria-label="Cube (x cubed)">x³</button>
+        <button type="button" id="modulo"    data-key="M" aria-label="Modulo (absolute value)">|x|</button>
+        <button type="button" id="factorial" data-key="F" aria-label="Factorial">n!</button>
+        <button type="button" id="sqrt"      data-key="R" aria-label="Square root">√x</button>
+        <button type="button" id="power"     data-key="P" aria-label="Power: x raised to the exponent">xʸ</button>
+      </div>
+      <div class="field">
+        <label for="exponent">Exponent y for xʸ</label>
+        <input type="text" id="exponent" autocomplete="off" placeholder="e.g. 4">
+      </div>
+    </section>
+
+    <!-- ===== Task 3: Binary operations ===== -->
+    <section class="group" aria-labelledby="h-binary">
+      <h3 id="h-binary">Binary operations</h3>
+      <div class="keys">
+        <button type="button" id="addition"       class="key-binary" data-key="+" aria-label="Addition">+</button>
+        <button type="button" id="multiplication" class="key-binary" data-key="*" aria-label="Multiplication">×</button>
+        <button type="button" id="equal"          class="key-binary" data-key="↵" aria-label="Equal">=</button>
+      </div>
+    </section>
+
+    <!-- ===== Task 4: CSV operations ===== -->
+    <section class="group" aria-labelledby="h-csv">
+      <h3 id="h-csv">CSV lists</h3>
+      <div class="keys">
+        <button type="button" id="sum"        class="key-csv" data-key="S" aria-label="Sum of all values">Σ Sum</button>
+        <button type="button" id="average"    class="key-csv" data-key="A" aria-label="Average of all values">Avg</button>
+        <button type="button" id="sort"       class="key-csv" data-key="O" aria-label="Sort ascending">Sort</button>
+        <button type="button" id="reverse"    class="key-csv" data-key="V" aria-label="Reverse the list">Reverse</button>
+        <button type="button" id="removelast" class="key-csv" data-key="X" aria-label="Remove the last value">Del last</button>
+      </div>
+
+      <fieldset class="remove-box">
+        <legend>Remove a specific element</legend>
+        <div class="radios">
+          <label><input type="radio" name="removeMode" value="value" checked> By value (first match)</label>
+          <label><input type="radio" name="removeMode" value="position"> By position (1 = first)</label>
+        </div>
+        <label for="removeValue">Value or position to remove</label>
+        <div class="inline">
+          <input type="text" id="removeValue" autocomplete="off" placeholder="e.g. 10">
+          <button type="button" id="remove" class="key-csv" data-key="D" aria-label="Remove the chosen element">Remove</button>
+        </div>
+      </fieldset>
+    </section>
+
+    <!-- ===== Tools ===== -->
+    <section class="group" aria-labelledby="h-tools">
+      <h3 id="h-tools">Tools</h3>
+      <div class="tools-row">
+        <button type="button" id="clear" class="key-tool" data-key="Esc" aria-label="Clear display and info">C</button>
+        <button type="button" id="downloadLog" class="key-tool" data-key="L" aria-label="Download error log">Download error log</button>
+        <span id="errorCount" aria-live="polite">0 errors logged</span>
+      </div>
+    </section>
+
+    <!-- ===== Shortcut legend ===== -->
+    <details class="shortcuts">
+      <summary>Keyboard shortcuts</summary>
+      <p>Use Tab to move between fields and buttons. Letter shortcuts work when the cursor is not inside a text field.</p>
+      <dl>
+        <dt><kbd>Enter</kbd></dt><dd>Equal (in the exponent field: power, in the remove field: remove)</dd>
+        <dt><kbd>+</kbd> <kbd>*</kbd></dt><dd>Addition, multiplication</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Clear</dd>
+        <dt><kbd>Q</kbd> <kbd>C</kbd></dt><dd>Square, cube</dd>
+        <dt><kbd>M</kbd> <kbd>F</kbd></dt><dd>Modulo, factorial</dd>
+        <dt><kbd>R</kbd> <kbd>P</kbd></dt><dd>Square root, power</dd>
+        <dt><kbd>S</kbd> <kbd>A</kbd></dt><dd>Sum, average</dd>
+        <dt><kbd>O</kbd> <kbd>V</kbd></dt><dd>Sort, reverse</dd>
+        <dt><kbd>X</kbd> <kbd>D</kbd></dt><dd>Remove last, remove element</dd>
+        <dt><kbd>L</kbd></dt><dd>Download error log</dd>
+        <dt><kbd>0–9</kbd></dt><dd>Typing a digit anywhere jumps into the display</dd>
+      </dl>
+    </details>
+  </main>
+
+  <!-- All JavaScript is in the separate file script.js -->
+  <script src="script.js"></script>
+</body>
+</html>
