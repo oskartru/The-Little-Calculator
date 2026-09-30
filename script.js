@@ -1,3 +1,6 @@
+/* JavaScript for the Web Calculator (calculator.html).
+   Loaded at the end of <body>, so all elements already exist when it runs. */
+
 "use strict";
 
 /* =========================================================
@@ -35,7 +38,9 @@ const OPERATION_NAMES = {
   sqrt: "Square root",
   power: "Power",
   addition: "Addition",
+  subtraction: "Subtraction",
   multiplication: "Multiplication",
+  division: "Division",
   equal: "Equal",
   sum: "Sum",
   average: "Average",
@@ -45,7 +50,12 @@ const OPERATION_NAMES = {
   remove: "Remove element"
 };
 
-const OPERATOR_SYMBOLS = { addition: "+", multiplication: "×" };
+const OPERATOR_SYMBOLS = {
+  addition: "+",
+  subtraction: "−",
+  multiplication: "×",
+  division: "÷"
+};
 
 
 /* =========================================================
@@ -292,8 +302,15 @@ function power() {
 
 function calculate(a, operator, b) {
   if (operator === "addition") return a + b;
+  if (operator === "subtraction") return a - b;
   if (operator === "multiplication") return a * b;
+  if (operator === "division") return a / b;
   return NaN;
+}
+
+// Division by zero is checked before calculating (JavaScript would return Infinity)
+function isDivisionByZero(operator, b) {
+  return operator === "division" && b === 0;
 }
 
 // Stores the first number and the operator in the global variables
@@ -313,7 +330,12 @@ function setOperator(operator) {
   if (!n) return;
 
   if (currentOperator !== null) {
-    // Chaining (e.g. 5 + 3 × 2): calculate the intermediate result first
+    // Chaining (e.g. 5 + 3 × 2): calculate the intermediate result first.
+    // Calculated from left to right, like a simple pocket calculator.
+    if (isDivisionByZero(currentOperator, n.value)) {
+      reportError("Error: Division by zero is not allowed.", "division", raw);
+      return;
+    }
     const intermediate = calculate(firstOperand, currentOperator, n.value);
     if (!Number.isFinite(intermediate)) {
       reportError("Error: The number is out of range.", operator, raw);
@@ -334,7 +356,7 @@ function setOperator(operator) {
 // Calculates the result when "=" is pressed
 function eq() {
   if (currentOperator === null) {
-    reportError("Error: Choose an operator (+ or ×) before pressing =.", "equal", $("display").value);
+    reportError("Error: Choose an operator (+, −, × or ÷) before pressing =.", "equal", $("display").value);
     return;
   }
   if ($("display").value.trim() === "") {
@@ -347,6 +369,12 @@ function eq() {
 
   const symbol = OPERATOR_SYMBOLS[currentOperator];
   const input = `${firstOperand} ${symbol} ${second.input}`;
+
+  if (isDivisionByZero(currentOperator, second.value)) {
+    reportError("Error: Division by zero is not allowed.", "division", input);
+    return; // operator stays stored, so the user can enter another number
+  }
+
   const result = calculate(firstOperand, currentOperator, second.value);
   const operation = currentOperator;
 
@@ -550,7 +578,9 @@ const ACTIONS = {
   sqrt: sqrt,
   power: power,
   addition: () => setOperator("addition"),
+  subtraction: () => setOperator("subtraction"),
   multiplication: () => setOperator("multiplication"),
+  division: () => setOperator("division"),
   equal: eq,
   sum: sum,
   average: average,
@@ -626,6 +656,16 @@ document.addEventListener("keydown", function (event) {
   // Operators work in the display and outside of text fields
   if (key === "+") { event.preventDefault(); triggerAction("addition"); return; }
   if (key === "*") { event.preventDefault(); triggerAction("multiplication"); return; }
+  if (key === "/") { event.preventDefault(); triggerAction("division"); return; }
+
+  // "-" is both the subtraction operator and the sign of a negative number.
+  // It only counts as subtraction when the display already holds one valid number
+  // (e.g. "5"). On an empty display or inside a list ("5, ") it types a minus sign.
+  if (key === "-" && validate($("display").value, "number").ok) {
+    event.preventDefault();
+    triggerAction("subtraction");
+    return;
+  }
   if (key === "=") { event.preventDefault(); triggerAction("equal"); return; }
 
   // Inside the display: normal typing, no letter shortcuts
