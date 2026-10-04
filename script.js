@@ -569,7 +569,6 @@ function clearAll() {
 }
 
 // Button id -> function. Events are attached with addEventListener
-// (no inline onclick), so ids like "sum" can't shadow the functions.
 const ACTIONS = {
   square: square,
   cube: cube,
